@@ -1,0 +1,6 @@
+{
+    "client_id": "client id",
+    "client_secrets": "SECRET",
+    "username": "administrator@domain.at",
+    "password": "PASSWORD"
+}
