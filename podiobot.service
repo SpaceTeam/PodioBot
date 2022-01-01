@@ -1,0 +1,16 @@
+[Unit]
+Description=Podio Bot
+After=network.target
+
+[Service]
+User=podiobot
+WorkingDirectory=/home/podiobot/PodioBot
+ExecStart=/bin/bash -c 'source /home/podiobot/PodioBot/venv/bin/activate; python main.py'
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+
+[Timer]
+OnCalendar=daily
+Persistent=true
