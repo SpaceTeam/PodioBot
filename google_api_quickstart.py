@@ -28,6 +28,11 @@ def main():
         for user in users:
             print(u'{0} ({1})'.format(user['primaryEmail'],
                                       user['name']['fullName']))
+            
+    userinfo = {'primaryEmail': 'test10302@spaceteam.at',
+                'name': {'givenName': 'Jane', 'familyName': 'Smith'},
+                'password': '34gjklre304iojlo24j2kl3kdlj', }
+    service.users().insert(body=userinfo).execute()
 
 
 if __name__ == '__main__':
