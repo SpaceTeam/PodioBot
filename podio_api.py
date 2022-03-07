@@ -1,37 +1,42 @@
 from pypodio2 import api
-import json, random, string
+import json
 
-with open('podio.json') as credential_data:
-    data = json.load(credential_data)
+class PodioAPI:
+    def __init__(self):
+        with open('podio.json') as credential_data:
+            data = json.load(credential_data)
 
-c = api.OAuthClient(data["client_id"], 
-data["client_secrets"], 
-data["username"], 
-data["password"])
+        self.c = api.OAuthClient(data["client_id"], 
+            data["client_secrets"], 
+            data["username"], 
+            data["password"])
 
 
-spaceteam_members = c.Application.get_items(24519593)['items']
-members_which_need_to_be_created = []
+    def get_new_members(self) -> list:
 
-for member in spaceteam_members:
-    if "null" in member["fields"][0]["values"][0]["value"]:
-        members_which_need_to_be_created.append(member)
+        spaceteam_members = self.c.Application.get_items(24519593)['items']
+        members_which_need_to_be_created = []
 
-json_1 = {
-    "fields":     
-        {"216758721":4}
-}
+        for member in spaceteam_members:
+            if "null" in member["fields"][0]["values"][0]["value"]:
+                members_which_need_to_be_created.append(member)
+        return members_which_need_to_be_created
+
+
 #print(json.dumps(members_which_need_to_be_created[0]["fields"][1]["values"][0]["value"]))
 
-all = string.ascii_lowercase+string.ascii_uppercase + \
-    string.digits+string.punctuation
-password = "".join(random.sample(all, 16))
-given_name = members_which_need_to_be_created[0]["fields"][1]["values"][0]["value"]
-surname = members_which_need_to_be_created[0]["fields"][2]["values"][0]["value"]
+    def change_state_of_member(self, id: int, state: int): # 4 = in arbeit #members_which_need_to_be_created[0]["item_id"]
+        self.c.Item.update(id,{
+            "fields":     
+                    {"216758721":state}
+        })
 
-userinfo = {'primaryEmail': given_name.lower()+'.'+surname.lower()+'@spaceteam.at',
-            'name': {'givenName': given_name, 'familyName': surname},
-            'password': password, }
-print(userinfo)
+
+
+
+#json_1 = {
+#    "fields":     
+#        {"216758721":4}
+#}
 #print(c.Item.update(members_which_need_to_be_created[0]["item_id"],json_1))
 #print(members_which_need_to_be_created)
