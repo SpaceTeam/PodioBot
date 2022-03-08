@@ -38,7 +38,7 @@ class MailSender:
 
         body = self.template.render(user=user, current_semester=current_semester())
 
-        msg.attach(MIMEText(body, "plain"))
+        msg.attach(MIMEText(body, "html"))
         binary_pdf = open(self.config["pdf"], "rb")
 
         payload = MIMEBase("application", "octate-stream", Name=self.config["pdf"])

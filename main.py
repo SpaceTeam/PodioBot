@@ -4,6 +4,10 @@ from misc import gen_random_password
 from user import User
 from mail import MailSender
 from ascii import translate_to_ascii
+from flask import Flask, request
+import requests
+
+app = Flask(__name__)
 
 def main():
     podio = PodioAPI('podio.json')
@@ -56,5 +60,20 @@ def main():
         print(podio.change_state_of_member(podio_id, 1))
         print("done.")
 
-if __name__ == "__main__":
-    main()
+@app.route('/')
+def ok():
+    return 'OK'
+
+@app.post('/')
+def handle_hook():
+    hook_data = request.form
+    if hook_data['type'] == 'item.create':
+        main()
+    elif hook_data['type'] == 'hook.verify':
+        podio = PodioAPI('podio.json')
+        podio.validate_webhook(hook_id=hook_data['hook_id'], code=hook_data['code'])
+    return 'OK'
+
+if __name__ == '__main__':
+    app.run(host="0.0.0.0")
+    

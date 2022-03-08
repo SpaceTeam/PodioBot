@@ -25,6 +25,9 @@ class PodioAPI:
                 members_which_need_to_be_created.append(member)
         return members_which_need_to_be_created
 
+    def validate_webhook(self, hook_id: int, code: int):
+        self.c.Hook.validate(hook_id, code)
+
 
     def change_state_of_member(self, id: int, state: int): # 4 = in arbeit #members_which_need_to_be_created[0]["item_id"]
         self.c.Item.update(id,{
