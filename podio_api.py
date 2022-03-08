@@ -2,6 +2,8 @@ from pypodio2 import api
 import json
 from datetime import datetime
 
+from user import User
+
 class PodioAPI:
     def __init__(self, config_name: str):
         with open(config_name) as credential_data:
@@ -38,3 +40,15 @@ class PodioAPI:
             "fields":     
                     {"229611689":{"start":time1}}
         })
+
+    def update_st_email(self, id: int, user: User): 
+        self.c.Item.update(id,{
+            "fields":     
+                    {"216757856":{"type": "work", "value":user.email}}
+        })
+
+    def get_value_of_field_with_id(self, id: int, items: list) -> str:
+        for item in items["fields"]:
+            if item['field_id'] == id:
+                return item['values'][0]['value']
+        return None        

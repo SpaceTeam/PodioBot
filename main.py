@@ -19,12 +19,11 @@ def main():
         exit()
 
     for member in new_members:
-        given_name = member["fields"][1]["values"][0]["value"]
-        surname = member["fields"][2]["values"][0]["value"]
-        recovery_email = member["fields"][5]["values"][0]["value"]
-        phonenumber = member["fields"][6]["values"][0]["value"]
+        given_name = podio.get_value_of_field_with_id(206982183,member)
+        surname = podio.get_value_of_field_with_id(206982184,member)
+        recovery_email = podio.get_value_of_field_with_id(206982186,member)
         podio_id = member["item_id"]
-
+        
         print("Generating unique-ish password ...")
         password = gen_random_password(16)
         print("done.")
@@ -40,6 +39,9 @@ def main():
         )
         print("Creating user ...")
         print(google.create_new_account(user))
+        print("done.")
+        print("Updating email in podio ...")
+        print(podio.update_st_email(podio_id,user))
         print("done.")
         print("Add account to spaceteam group ...")
         print(google.add_account_to_group("spaceteam@spaceteam.at", user.email))
