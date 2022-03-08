@@ -10,15 +10,15 @@ from googleapiclient.discovery import build
 from user import User
 
 
-SCOPES = ['https://www.googleapis.com/auth/admin.directory.user']
+SCOPES = ['https://www.googleapis.com/auth/admin.directory.user','https://www.googleapis.com/auth/admin.directory.group.member']
 
 
 class GoogleAPI:
-    def __init__(self) -> None:
+    def __init__(self, config_name: str) -> None:
         creds = None
-        if os.path.exists('credentials.json'):
+        if os.path.exists(config_name):
             creds = Credentials.from_service_account_file(
-                'credentials.json', scopes=SCOPES)
+                config_name, scopes=SCOPES)
 
         self.service = build('admin', 'directory_v1', credentials=creds)
 
@@ -31,7 +31,6 @@ class GoogleAPI:
             'password': user.password,
             'changePasswordAtNextLogin': True,
             'recoveryEmail': user.recovery_email,
-            'recoveryPhone': user.phonenumber, 
             }
         return self.service.users().insert(body=info).execute()
 
@@ -39,7 +38,7 @@ class GoogleAPI:
         payload = {
             'email' : email,
         }
-        return self.service.members().insert(groupkey, body=payload)
+        return self.service.members().insert(groupKey=groupkey, body=payload).execute()
 
     # results = service.users().list(domain="spaceteam.at", maxResults=10,
     #                                orderBy='email').execute()

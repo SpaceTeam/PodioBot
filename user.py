@@ -7,4 +7,3 @@ class User:
     given_name: str
     family_name: str
     password: str
-    phonenumber: str | None

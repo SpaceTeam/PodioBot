@@ -2,19 +2,22 @@ from podio_api import PodioAPI
 from google_api import GoogleAPI
 from misc import gen_random_password
 from user import User
-import json
+from mail import MailSender
+from ascii import translate_to_ascii
 
 def main():
-    podio = PodioAPI()
-    google = GoogleAPI()
+    podio = PodioAPI('podio.json')
+    google = GoogleAPI('credentials.json')
+    mail_sender = MailSender('mail.json')
     
     print("Fetching members from podio ...")
     new_members = podio.get_new_members()
     print("done.")
+    
+    if len(new_members) == 0:
+        print("No new members found.")
+        exit()
 
-    print(json.dumps(new_members[0]["fields"][6]["values"][0]["value"]))
-
-    exit()
     for member in new_members:
         given_name = member["fields"][1]["values"][0]["value"]
         surname = member["fields"][2]["values"][0]["value"]
@@ -28,28 +31,25 @@ def main():
         print("Updating to \"in arbeit\" on podio ...")
         print(podio.change_state_of_member(podio_id, 4))
         print("done.")
-        #TODO replace special letters
         user = User(
-            email=given_name.lower()+'.'+surname.lower()+'@spaceteam.at',
+            email=translate_to_ascii(given_name.lower()+'.'+surname.lower())+'@spaceteam.at',
             recovery_email=recovery_email,
             given_name = given_name,
             family_name = surname,
             password=password,
-            phonenumber=phonenumber,
         )
         print("Creating user ...")
         print(google.create_new_account(user))
         print("done.")
-        print("Add account to team_alt group ...")
+        print("Add account to spaceteam group ...")
         print(google.add_account_to_group("spaceteam@spaceteam.at", user.email))
         print("done.")
-        # userinfo = {'primaryEmail': given_name.lower()+'.'+surname.lower()+'@spaceteam.at',
-        #             'name': {'givenName': given_name, 'familyName': surname},
-        #             'password': password, 
-        #  'changePasswordAtNextLogin': True,
-        # 'recoveryEmail': recovery_email,
-        #'recoveryPhone': recovery_phone_number}
-        print(userinfo)
+        print("Sending welcome mail ...")
+        mail_sender.send_welcome_mail(user)
+        print("done.")
+        print("Updating to \"Neu\" on podio ...")
+        print(podio.change_state_of_member(podio_id, 1))
+        print("done.")
 
 if __name__ == "__main__":
     main()

@@ -2,8 +2,8 @@ from pypodio2 import api
 import json
 
 class PodioAPI:
-    def __init__(self):
-        with open('podio.json') as credential_data:
+    def __init__(self, config_name: str):
+        with open(config_name) as credential_data:
             data = json.load(credential_data)
 
         self.c = api.OAuthClient(data["client_id"], 
