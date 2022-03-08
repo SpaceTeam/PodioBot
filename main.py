@@ -7,7 +7,7 @@ from ascii import translate_to_ascii
 
 def main():
     podio = PodioAPI('podio.json')
-    google = GoogleAPI('credentials.json')
+    google = GoogleAPI('google.json')
     mail_sender = MailSender('mail.json')
     
     print("Fetching members from podio ...")

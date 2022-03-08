@@ -1,0 +1,8 @@
+{
+    "domain": "smtp.gmail.com",
+    "port": 587,
+    "username": "email@domain.at",
+    "password": "PASSWORT",
+    "pdf": "some.pdf",
+    "template": "mail.template"
+}
