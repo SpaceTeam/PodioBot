@@ -1,5 +1,6 @@
 from pypodio2 import api
 import json
+from datetime import datetime
 
 class PodioAPI:
     def __init__(self, config_name: str):
@@ -23,20 +24,17 @@ class PodioAPI:
         return members_which_need_to_be_created
 
 
-#print(json.dumps(members_which_need_to_be_created[0]["fields"][1]["values"][0]["value"]))
-
     def change_state_of_member(self, id: int, state: int): # 4 = in arbeit #members_which_need_to_be_created[0]["item_id"]
         self.c.Item.update(id,{
             "fields":     
                     {"216758721":state}
         })
 
-
-
-
-#json_1 = {
-#    "fields":     
-#        {"216758721":4}
-#}
-#print(c.Item.update(members_which_need_to_be_created[0]["item_id"],json_1))
-#print(members_which_need_to_be_created)
+    def update_begin_of_membership(self, id: int): 
+        now = datetime.now()
+        format = "%Y-%m-%d %H:%M:%S"
+        time1 = now.strftime(format)
+        self.c.Item.update(id,{
+            "fields":     
+                    {"229611689":{"start":time1}}
+        })
