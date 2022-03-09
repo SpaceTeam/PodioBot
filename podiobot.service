@@ -10,7 +10,3 @@ Restart=always
 
 [Install]
 WantedBy=multi-user.target
-
-[Timer]
-OnCalendar=daily
-Persistent=true
