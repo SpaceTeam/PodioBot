@@ -27,7 +27,7 @@ def remind_members():
     for member in all_members:
         payed_until = datetime.strptime(podio.get_start_of_field_with_id(229789505, member), "%Y-%m-%d %H:%M:%S")
         if (current_time < payed_until):
-            #print("payed.")
+            pass#print("payed.")
         else:
             members_which_need_to_be_reminded.append(member)
 

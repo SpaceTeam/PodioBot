@@ -1,6 +1,9 @@
 from podio_api import PodioAPI
 from google_api import GoogleAPI
 from mail import MailSender
+from misc import gen_random_password
+from ascii import translate_to_ascii
+from user import User
 
 def manage_new_accounts():
     podio = PodioAPI('podio.json')
