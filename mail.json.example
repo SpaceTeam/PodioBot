@@ -4,5 +4,7 @@
     "username": "email@domain.at",
     "password": "PASSWORT",
     "pdf": "some.pdf",
-    "template": "mail.template"
+    "template": "mail.template",
+    "welcome_template": "welcome_mail.template",
+    "reminder_template": "reminder_mail.template"
 }

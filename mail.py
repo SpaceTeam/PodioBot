@@ -27,16 +27,44 @@ class MailSender:
         with open(config_file) as mail_data:
             self.config = json.load(mail_data)
 
-        env = Environment(
+        self.env = Environment(
             loader=FileSystemLoader("."),
             autoescape=select_autoescape(["html", "xml"]),
         )
-        self.template = env.get_template("mail.template")
-
-    def send_welcome_mail(self, user: User) -> None:
+        
+    def send_reminder_email(self, user: User) -> None:
+        template = self.env.get_template(self.config["reminder_template"])
         msg = MIMEMultipart()
 
-        body = self.template.render(user=user, current_semester=current_semester())
+        body = template.render(user=user)
+
+        msg.attach(MIMEText(body, "html"))
+
+        # enconding the binary into base64
+
+        msg["Subject"] = "Beitragserinnerung TU Space Team - Membershipfee reminder TU Space Team"
+        msg["From"] = self.config["username"]
+        msg["To"] = user.recovery_email
+
+        with smtplib.SMTP(self.config["domain"], self.config["port"]) as server:
+            #server.starttls()
+            #server.ehlo()
+            #server.login(self.config["username"], self.config["password"])
+            #server.sendmail(
+            #    self.config["username"], [user.recovery_email], msg.as_string()
+            #)
+            print("Successfully sent email.")
+
+
+
+
+
+
+    def send_welcome_mail(self, user: User) -> None:
+        template = self.env.get_template(self.config["welcome_template"])
+        msg = MIMEMultipart()
+
+        body = template.render(user=user, current_semester=current_semester())
 
         msg.attach(MIMEText(body, "html"))
         binary_pdf = open(self.config["pdf"], "rb")
