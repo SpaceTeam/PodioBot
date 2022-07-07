@@ -18,7 +18,7 @@ def current_semester() -> str:
         msg += "S"
     else:
         msg += "W"
-    
+
     return msg
 
 
@@ -31,34 +31,44 @@ class MailSender:
             loader=FileSystemLoader("."),
             autoescape=select_autoescape(["html", "xml"]),
         )
-        
-    def send_reminder_email(self, user: User) -> None:
+
+    def send_mail(self, msg : MIMEMultipart, email: str):
+        msg.add_header('reply-to', "hr@spaceteam.at")
+        with smtplib.SMTP(self.config["domain"], self.config["port"]) as server:
+            server.starttls()
+            server.ehlo()
+            server.login(self.config["username"], self.config["password"])
+            server.sendmail(
+                self.config["username"], [email], msg.as_string()
+            )
+            print("Successfully sent email.")
+
+    def send_plain_email(self, subject: str, message: str, email: str):
+        msg = MIMEMultipart()
+        msg.attach(MIMEText(message, "plain"))
+
+        msg[
+            "Subject"
+        ] = subject
+        msg["From"] = self.config["username"]
+        msg["To"] = email
+        self.send_mail(msg, email)
+
+
+    def send_reminder_email(self, user: User, amount: int) -> None:
         template = self.env.get_template(self.config["reminder_template"])
         msg = MIMEMultipart()
 
-        body = template.render(user=user)
+        body = template.render(user=user, amount=amount)
 
         msg.attach(MIMEText(body, "html"))
-
-        # enconding the binary into base64
-
-        msg["Subject"] = "Beitragserinnerung TU Space Team - Membershipfee reminder TU Space Team"
+        msg[
+            "Subject"
+        ] = "Beitragserinnerung TU Space Team - Membershipfee reminder TU Space Team"
         msg["From"] = self.config["username"]
         msg["To"] = user.recovery_email
-
-        with smtplib.SMTP(self.config["domain"], self.config["port"]) as server:
-            #server.starttls()
-            #server.ehlo()
-            #server.login(self.config["username"], self.config["password"])
-            #server.sendmail(
-            #    self.config["username"], [user.recovery_email], msg.as_string()
-            #)
-            print("Successfully sent email.")
-
-
-
-
-
+        self.send_mail(msg, "paul.hoeller@spaceteam.at")
+        #self.send_mail(msg, user.recovery_email)
 
     def send_welcome_mail(self, user: User) -> None:
         template = self.env.get_template(self.config["welcome_template"])
@@ -70,9 +80,9 @@ class MailSender:
         binary_pdf = open(self.config["pdf"], "rb")
 
         payload = MIMEBase("application", "octate-stream", Name=self.config["pdf"])
-        # payload = MIMEBase('application', 'pdf', Name=pdfname)
         payload.set_payload((binary_pdf).read())
 
+        # TODO: Doesn't work in all email clients
         # enconding the binary into base64
         encoders.encode_base64(payload)
 
@@ -86,11 +96,4 @@ class MailSender:
         msg["From"] = self.config["username"]
         msg["To"] = user.recovery_email
 
-        with smtplib.SMTP(self.config["domain"], self.config["port"]) as server:
-            server.starttls()
-            server.ehlo()
-            server.login(self.config["username"], self.config["password"])
-            server.sendmail(
-                self.config["username"], [user.recovery_email], msg.as_string()
-            )
-            print("Successfully sent email.")
+        self.send_mail(msg, user.recovery_email)

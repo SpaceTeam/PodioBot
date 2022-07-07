@@ -1,4 +1,4 @@
-#stolen from https://github.com/SpaceTeam/wiki-migration/blob/master/ascii.py
+# stolen from https://github.com/SpaceTeam/wiki-migration/blob/master/ascii.py
 def translate_to_ascii(text: str) -> str:
     """Translates unicode characters to their closest ascii values"""
     for k, v in table.items():

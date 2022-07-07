@@ -10,33 +10,38 @@ from googleapiclient.discovery import build
 from user import User
 
 
-SCOPES = ['https://www.googleapis.com/auth/admin.directory.user','https://www.googleapis.com/auth/admin.directory.group.member']
+SCOPES = [
+    "https://www.googleapis.com/auth/admin.directory.user",
+    "https://www.googleapis.com/auth/admin.directory.group.member",
+]
 
 
 class GoogleAPI:
     def __init__(self, config_name: str) -> None:
         creds = None
         if os.path.exists(config_name):
-            creds = Credentials.from_service_account_file(
-                config_name, scopes=SCOPES)
+            creds = Credentials.from_service_account_file(config_name, scopes=SCOPES)
 
-        self.service = build('admin', 'directory_v1', credentials=creds)
+        self.service = build("admin", "directory_v1", credentials=creds)
 
     def create_new_account(self, user: User) -> str:
         info = {
-            'primaryEmail': user.email,
-            'name': {
-                'givenName': user.given_name, 'familyName': user.family_name,
+            "primaryEmail": user.email,
+            "name": {
+                "givenName": user.given_name,
+                "familyName": user.family_name,
             },
-            'password': user.password,
-            'changePasswordAtNextLogin': True,
-            'recoveryEmail': user.recovery_email,
-            }
+            "password": user.password,
+            "changePasswordAtNextLogin": True,
+            "recoveryEmail": user.recovery_email,
+        }
         return self.service.users().insert(body=info).execute()
 
-    def add_account_to_group(self, groupkey: str, email: str) -> str: #group key e.g email or id of group
+    def add_account_to_group(
+        self, groupkey: str, email: str
+    ) -> str:  # group key e.g email or id of group
         payload = {
-            'email' : email,
+            "email": email,
         }
         return self.service.members().insert(groupKey=groupkey, body=payload).execute()
 
