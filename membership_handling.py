@@ -4,7 +4,7 @@ from user import User
 from mail import MailSender
 from ascii import translate_to_ascii
 from datetime import datetime
-import json, math
+import json, math, time
 
 # Sends reminder email to members that haven't paid their membership fee.
 def remind_members():
@@ -66,8 +66,6 @@ def remind_members():
         recovery_email = podio.get_value_of_field_with_id(206982186, member)
         podio_id = member["item_id"]
 
-        print(f"Sending mail reminder ({given_name} {surname}) ...")
-
         user = User(
             email=translate_to_ascii(given_name.lower() + "." + surname.lower())
             + "@spaceteam.at",
@@ -76,5 +74,7 @@ def remind_members():
             family_name=surname,
             password="",
         )
+        print(f"Sending mail reminder ({given_name} {surname}) ...")
         mail_sender.send_reminder_email(user,member["amount"])
+        time.sleep(1)
         print("done.")
