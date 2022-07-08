@@ -55,7 +55,7 @@ def remind_members():
         statistc_msg += "The most worrisome members are:\n"
         statistc_msg += "".join(map(lambda hp: f"* {hp[0]}: {hp[1]}\n", statistics["high_payers"]))
 
-    #mail_sender.send_plain_email("Member reminder statistics", statistc_msg, "paul.hoeller@spaceteam.at")
+    mail_sender.send_plain_email("Member reminder statistics", statistc_msg, "paul.hoeller@spaceteam.at")
 
     print(f"Sending {len(members_which_need_to_be_reminded)} reminders.")
     for member in members_which_need_to_be_reminded:
@@ -77,5 +77,4 @@ def remind_members():
             password="",
         )
         mail_sender.send_reminder_email(user,member["amount"])
-        exit()
         print("done.")

@@ -67,8 +67,7 @@ class MailSender:
         ] = "Beitragserinnerung TU Space Team - Membershipfee reminder TU Space Team"
         msg["From"] = self.config["username"]
         msg["To"] = user.recovery_email
-        self.send_mail(msg, "paul.hoeller@spaceteam.at")
-        #self.send_mail(msg, user.recovery_email)
+        self.send_mail(msg, user.recovery_email)
 
     def send_welcome_mail(self, user: User) -> None:
         template = self.env.get_template(self.config["welcome_template"])
