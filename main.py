@@ -27,11 +27,13 @@ def run_scheduler(nope):
     
 
 if __name__ == "__main__":
+    #schedule.every(24*30).hours.do(remind_members)
+
     schedule.every(15).minutes.do(manage_new_accounts)
-    schedule.every(24*30).hours.do(remind_members)
     scheduler_thread = threading.Thread(target=run_scheduler, args=(1,))
     scheduler_thread.start()
 
-    # manage_new_accounts()
-    # remind_members()
+    manage_new_accounts()
+    #remind_members()
+
     app.run(host="0.0.0.0")
