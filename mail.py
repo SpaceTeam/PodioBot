@@ -96,3 +96,8 @@ class MailSender:
         msg["To"] = user.recovery_email
 
         self.send_mail(msg, user.recovery_email)
+
+if __name__ == "__main__":
+    #sending test email
+    mail_handler = MailSender("mail.json")
+    mail_handler.send_plain_email("Test Email", "Test email to see if smtp is correctly set up", "it@spaceteam.at")
