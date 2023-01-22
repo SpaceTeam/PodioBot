@@ -35,7 +35,14 @@ class PodioAPI:
                 24519593, attributes={"limit": 30, "offset": i * 30}
             )
             if "items" in result: 
-                results += result["items"]
+                for item in result["items"]:
+                    for field in item["fields"]:
+                        if field["field_id"] ==  216758721:
+                            if "value" in field["values"][0]:
+                                if "text" in field["values"][0]["value"]:
+                                    if field["values"][0]["value"]["text"] != "Ausgetreten":
+                                        results.append(item)
+                                        break
         return results
 
     def validate_webhook(self, hook_id: int, code: int):
