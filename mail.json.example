@@ -6,5 +6,8 @@
     "pdf": "some.pdf",
     "template": "mail.template",
     "welcome_template": "welcome_mail.template",
-    "reminder_template": "reminder_mail.template"
+    "reminder_template": "reminder_mail.template",
+    "banking_account_name": "Account Name",
+    "iban": "ATxxxxxxxxxxxxxxxxxxx",
+    "currency": "EUR"
 }
