@@ -3,12 +3,13 @@ from email.mime.multipart import MIMEMultipart
 import smtplib, json
 from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
+from email.mime.image import MIMEImage
 from email import encoders
 from jinja2 import Environment, select_autoescape, FileSystemLoader
 from datetime import date
 
+from qr import generateQRCode
 from user import User
-
 
 def current_semester() -> str:
     today = date.today()
@@ -67,6 +68,13 @@ class MailSender:
         ] = "Beitragserinnerung TU Space Team - Membershipfee reminder TU Space Team"
         msg["From"] = self.config["username"]
         msg["To"] = user.recovery_email
+        image = MIMEImage(generateQRCode(recipient=self.config["banking_account_name"],
+                                         iban=self.config["iban"],
+                                         amount=amount,
+                                         currency=self.config["currency"],
+                                         purpose=f"MGB {user.given_name} {user.family_name}"))
+        image.add_header('Content-Disposition', 'attachment', filename='qrcode.png')
+        msg.attach(image)
         self.send_mail(msg, user.recovery_email)
 
     def send_welcome_mail(self, user: User) -> None:
@@ -100,4 +108,12 @@ class MailSender:
 if __name__ == "__main__":
     #sending test email
     mail_handler = MailSender("mail.json")
-    mail_handler.send_plain_email("Test Email", "Test email to see if smtp is correctly set up", "it@spaceteam.at")
+    user = User(
+            email="paul.hoeller@spaceteam.at",
+            recovery_email="paul.hoeller@spaceteam.at",
+            given_name="Paul",
+            family_name="Höller",
+            password="",
+        )
+    mail_handler.send_reminder_email(user=user, amount=25) 
+    #mail_handler.send_plain_email("Test Email", "Test email to see if smtp is correctly set up", "it@spaceteam.at")
