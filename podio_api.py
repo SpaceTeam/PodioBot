@@ -37,20 +37,16 @@ class PodioAPI:
             if "items" in result: 
                 for item in result["items"]:
                     for field in item["fields"]:
-                        if field["field_id"] ==  216758721:
-                            if "value" in field["values"][0]:
-                                if "text" in field["values"][0]["value"]:
-                                    if field["values"][0]["value"]["text"] != "Ausgetreten":
-                                        results.append(item)
-                                        break
+                        if field["field_id"] ==  216758721 and "value" in field["values"][0] and "text" in field["values"][0]["value"] and field["values"][0]["value"]["text"] != "Ausgetreten": 
+                            results.append(item)
+                            break
         return results
 
     def validate_webhook(self, hook_id: int, code: int):
         self.c.Hook.validate(hook_id, code)
 
-    def change_state_of_member(
-        self, id: int, state: int
-    ):  # 4 = in arbeit #members_which_need_to_be_created[0]["item_id"]
+    def change_state_of_member(self, id: int, state: int):  
+        # 4 = in arbeit #members_which_need_to_be_created[0]["item_id"]
         self.c.Item.update(id, {"fields": {"216758721": state}})
 
     def update_begin_of_membership(self, id: int):
