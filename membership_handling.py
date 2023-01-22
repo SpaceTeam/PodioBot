@@ -74,7 +74,11 @@ def remind_members():
             family_name=surname,
             password="",
         )
+    
         print(f"Sending mail reminder ({given_name} {surname}) ...")
         mail_sender.send_reminder_email(user,member["amount"])
-        time.sleep(1)
+        time.sleep(3)
         print("done.")
+
+if __name__ == "__main__":
+    remind_members()
