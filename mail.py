@@ -11,6 +11,7 @@ from datetime import date
 from qr import generateQRCode
 from user import User
 
+
 def current_semester() -> str:
     today = date.today()
     msg = str(today.year)
@@ -33,34 +34,29 @@ class MailSender:
             autoescape=select_autoescape(["html", "xml"]),
         )
 
-    def send_mail(self, msg : MIMEMultipart, email: str):
-        msg.add_header('reply-to', "hr@spaceteam.at")
+    def send_mail(self, msg: MIMEMultipart, email: str):
+        msg.add_header("reply-to", "hr@spaceteam.at")
         with smtplib.SMTP(self.config["domain"], self.config["port"]) as server:
             server.starttls()
             server.ehlo()
             server.login(self.config["username"], self.config["password"])
-            server.sendmail(
-                self.config["username"], [email], msg.as_string()
-            )
+            server.sendmail(self.config["username"], [email], msg.as_string())
             print("Successfully sent email.")
 
     def send_plain_email(self, subject: str, message: str, email: str):
         msg = MIMEMultipart()
         msg.attach(MIMEText(message, "plain"))
 
-        msg[
-            "Subject"
-        ] = subject
+        msg["Subject"] = subject
         msg["From"] = self.config["username"]
         msg["To"] = email
         self.send_mail(msg, email)
 
-
-    def send_reminder_email(self, user: User, amount: int) -> None:
+    def send_reminder_email(self, user: User, amount: int, days_not_payed: int) -> None:
         template = self.env.get_template(self.config["reminder_template"])
         msg = MIMEMultipart()
 
-        body = template.render(user=user, amount=amount)
+        body = template.render(user=user, amount=amount, days_not_payed=days_not_payed)
 
         msg.attach(MIMEText(body, "html"))
         msg[
@@ -68,12 +64,16 @@ class MailSender:
         ] = "Beitragserinnerung TU Space Team - Membershipfee reminder TU Space Team"
         msg["From"] = self.config["username"]
         msg["To"] = user.recovery_email
-        image = MIMEImage(generateQRCode(recipient=self.config["banking_account_name"],
-                                         iban=self.config["iban"],
-                                         amount=amount,
-                                         currency=self.config["currency"],
-                                         purpose=f"MGB {user.given_name} {user.family_name}"))
-        image.add_header('Content-Disposition', 'attachment', filename='qrcode.png')
+        image = MIMEImage(
+            generateQRCode(
+                recipient=self.config["banking_account_name"],
+                iban=self.config["iban"],
+                amount=amount,
+                currency=self.config["currency"],
+                purpose=f"MGB {user.given_name} {user.family_name}",
+            )
+        )
+        image.add_header("Content-Disposition", "attachment", filename="qrcode.png")
         msg.attach(image)
         self.send_mail(msg, user.recovery_email)
 
@@ -105,15 +105,16 @@ class MailSender:
 
         self.send_mail(msg, user.recovery_email)
 
+
 if __name__ == "__main__":
-    #sending test email
+    # sending test email
     mail_handler = MailSender("mail.json")
     user = User(
-            email="paul.hoeller@spaceteam.at",
-            recovery_email="paul.hoeller@spaceteam.at",
-            given_name="Paul",
-            family_name="Höller",
-            password="",
-        )
-    mail_handler.send_reminder_email(user=user, amount=25) 
-    #mail_handler.send_plain_email("Test Email", "Test email to see if smtp is correctly set up", "it@spaceteam.at")
+        email="paul.hoeller@spaceteam.at",
+        recovery_email="paul.hoeller@spaceteam.at",
+        given_name="Paul",
+        family_name="Höller",
+        password="",
+    )
+    mail_handler.send_reminder_email(user=user, amount=9000, days_not_payed=142)
+    # mail_handler.send_plain_email("Test Email", "Test email to see if smtp is correctly set up", "it@spaceteam.at")
