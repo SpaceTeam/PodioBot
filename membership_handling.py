@@ -19,25 +19,24 @@ def remind_members():
 
     if len(all_members) == 0:
         print("No members found. Major ERROR")
-        return 
+        return
 
     current_time = datetime.now()
 
     members_which_need_to_be_reminded = []
 
-    statistics = {
-        "members": 0,
-        "total": 0,
-        "high_payers": []
-    }
+    statistics = {"members": 0, "total": 0, "high_payers": []}
     for member in all_members:
         payed_until = datetime.strptime(
             podio.get_start_of_field_with_id(229789505, member), "%Y-%m-%d %H:%M:%S"
         )
         if not current_time <= payed_until:
-            amount = math.ceil((current_time-payed_until).days/(6*30))*25
-            print(f"{(current_time-payed_until).days} days not payed for {podio.get_value_of_field_with_id(206982184, member)} = {amount}€")
-            member.update({"amount":amount})
+            amount = math.ceil((current_time - payed_until).days / (6 * 30)) * 25
+            print(
+                f"{(current_time-payed_until).days} days not payed for {podio.get_value_of_field_with_id(206982184, member)} = {amount}€"
+            )
+            member.update({"days_not_payed": (current_time - payed_until).days})
+            member.update({"amount": amount})
             members_which_need_to_be_reminded.append(member)
 
             given_name = podio.get_value_of_field_with_id(206982183, member)
@@ -46,16 +45,20 @@ def remind_members():
             statistics["total"] += amount
             if amount > 100:
                 statistics["high_payers"].append((given_name + " " + surname, amount))
-    
-    statistics["high_payers"].sort(key=lambda p: p[1])
-    statistc_msg = f"{statistics['members']} received a membership payment reminder, tottalling in about €{statistics['total']}.\n"
+
+    statistics["high_payers"].sort(key=lambda p: p[1], reverse=True)
+    statistc_msg = f"{statistics['members']} received a membership payment reminder, totalling in about €{statistics['total']}.\n"
     if len(statistics["high_payers"]) == 0:
         statistc_msg += "There are no worrisome members \(^.^)/"
-    else: 
+    else:
         statistc_msg += "The most worrisome members are:\n"
-        statistc_msg += "".join(map(lambda hp: f"* {hp[0]}: {hp[1]}\n", statistics["high_payers"]))
+        statistc_msg += "".join(
+            map(lambda hp: f"* {hp[0]}: {hp[1]}€\n", statistics["high_payers"])
+        )
 
-    mail_sender.send_plain_email("Member reminder statistics", statistc_msg, "paul.hoeller@spaceteam.at")
+    mail_sender.send_plain_email(
+        "Member reminder statistics", statistc_msg, "hr@spaceteam.at"
+    )
 
     print(f"Sending {len(members_which_need_to_be_reminded)} reminders.")
     for member in members_which_need_to_be_reminded:
@@ -74,11 +77,14 @@ def remind_members():
             family_name=surname,
             password="",
         )
-    
+
         print(f"Sending mail reminder ({given_name} {surname}) ...")
-        mail_sender.send_reminder_email(user,member["amount"])
+        mail_sender.send_reminder_email(
+            user, member["amount"], member["days_not_payed"]
+        )
         time.sleep(3)
         print("done.")
+
 
 if __name__ == "__main__":
     remind_members()
