@@ -57,3 +57,16 @@ def manage_new_accounts():
         print('Updating to "Neu" on podio ...')
         print(podio.change_state_of_member(podio_id, 1))
         print("done.")
+
+if __name__ == "__main__":
+    podio = PodioAPI("podio.json")
+    
+    print("Fetching members from podio ...")
+    new_members = podio.get_all_members()
+    print("done.")
+    
+
+    if len(new_members) == 0:
+        print("No new members found.")
+        exit()
+    print("Found: " + str(len(new_members)))
