@@ -17,7 +17,7 @@ def manage_new_accounts():
 
     if len(new_members) == 0:
         print("No new members found.")
-        exit()
+        return
 
     for member in new_members:
         given_name = podio.get_value_of_field_with_id(206982183, member)
