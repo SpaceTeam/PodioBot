@@ -8,6 +8,7 @@ A simple bot to automate the creation of the accounts for new
 * Create a google workspace account with a random password
 * Send the new member a welcome email (with their new spaceteam eamil)
 * Remind members every month about unpaid meber fees with different templates
+* Generates a payment qr code for easy payment
 
 
 ## Usage
