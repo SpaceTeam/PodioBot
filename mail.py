@@ -53,11 +53,22 @@ class MailSender:
         self.send_mail(msg, email)
 
     def send_reminder_email(self, user: User, amount: int, days_not_payed: int) -> None:
-        template = self.env.get_template(self.config["reminder_template"])
+        templates_config = self.config["reminder_template"]
+        template = None
+        for key in sorted(templates_config.keys(), reverse=True):
+            if int(key) <= days_not_payed:
+                template = templates_config[key]
+                break
+        if template is None:
+            print("Did not send email for",user.given_name,user.family_name,"because",days_not_payed,"days did not match a template.")
+            return;
+
+        template = self.env.get_template(template)
+        signature = self.env.get_template(self.config["signature_template"])
+        sig_body = signature.render()
+        body = template.render(user=user, amount=amount, days_not_payed=days_not_payed, signature=sig_body)
+        
         msg = MIMEMultipart()
-
-        body = template.render(user=user, amount=amount, days_not_payed=days_not_payed)
-
         msg.attach(MIMEText(body, "html"))
         msg[
             "Subject"
@@ -116,5 +127,5 @@ if __name__ == "__main__":
         family_name="Höller",
         password="",
     )
-    mail_handler.send_reminder_email(user=user, amount=9000, days_not_payed=142)
+    mail_handler.send_reminder_email(user=user, amount=100, days_not_payed=91)
     # mail_handler.send_plain_email("Test Email", "Test email to see if smtp is correctly set up", "it@spaceteam.at")
