@@ -14,6 +14,7 @@ def ok():
 @app.post("/")
 def handle_hook():
     hook_data = request.form
+    print(hook_data)
     if hook_data["type"] == "item.create":
         manage_new_accounts()
     elif hook_data["type"] == "hook.verify":
@@ -21,19 +22,20 @@ def handle_hook():
         podio.validate_webhook(hook_id=hook_data["hook_id"], code=hook_data["code"])
     return "OK"
 
+
 def run_scheduler(nope):
     schedule.run_pending()
     time.sleep(1)
-    
+
 
 if __name__ == "__main__":
-    #schedule.every(24*30).hours.do(remind_members)
+    # schedule.every(24*30).hours.do(remind_members)
 
     schedule.every(15).minutes.do(manage_new_accounts)
     scheduler_thread = threading.Thread(target=run_scheduler, args=(1,))
     scheduler_thread.start()
 
     manage_new_accounts()
-    #remind_members()
+    # remind_members()
 
     app.run(host="0.0.0.0")

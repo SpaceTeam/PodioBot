@@ -60,14 +60,23 @@ class MailSender:
                 template = templates_config[key]
                 break
         if template is None:
-            print("Did not send email for",user.given_name,user.family_name,"because",days_not_payed,"days did not match a template.")
-            return;
+            print(
+                "Did not send email for",
+                user.given_name,
+                user.family_name,
+                "because",
+                days_not_payed,
+                "days did not match a template.",
+            )
+            return
 
         template = self.env.get_template(template)
         signature = self.env.get_template(self.config["signature_template"])
         sig_body = signature.render()
-        body = template.render(user=user, amount=amount, days_not_payed=days_not_payed, signature=sig_body)
-        
+        body = template.render(
+            user=user, amount=amount, days_not_payed=days_not_payed, signature=sig_body
+        )
+
         msg = MIMEMultipart()
         msg.attach(MIMEText(body, "html"))
         msg[
@@ -95,20 +104,20 @@ class MailSender:
         body = template.render(user=user, current_semester=current_semester())
 
         msg.attach(MIMEText(body, "html"))
-        binary_pdf = open(self.config["pdf"], "rb")
+        # binary_pdf = open(self.config["pdf"], "rb")
 
-        payload = MIMEBase("application", "octate-stream", Name=self.config["pdf"])
-        payload.set_payload((binary_pdf).read())
+        # payload = MIMEBase("application", "octate-stream", Name=self.config["pdf"])
+        # payload.set_payload((binary_pdf).read())
 
         # TODO: Doesn't work in all email clients
         # enconding the binary into base64
-        encoders.encode_base64(payload)
+        # encoders.encode_base64(payload)
 
         # add header with pdf name
-        payload.add_header(
-            "Content-Decomposition", "attachment", filename=self.config["pdf"]
-        )
-        msg.attach(payload)
+        # payload.add_header(
+        #    "Content-Decomposition", "attachment", filename=self.config["pdf"]
+        # )
+        # msg.attach(payload)
 
         msg["Subject"] = "Willkommen im TU Space Team - Welcome to TU Space Team"
         msg["From"] = self.config["username"]
@@ -127,5 +136,22 @@ if __name__ == "__main__":
         family_name="Höller",
         password="",
     )
-    mail_handler.send_reminder_email(user=user, amount=100, days_not_payed=91)
+    user2 = User(
+        email="alicia.wollendorfer@spaceteam.at",
+        recovery_email="alicia.wollendorfer@spaceteam.at",
+        given_name="Alicia",
+        family_name="Wollendorfer",
+        password="",
+    )
+    user3 = User(
+        email="patrick.kappl@spaceteam.at",
+        recovery_email="patrick.kappl@spaceteam.at",
+        given_name="Patrick",
+        family_name="Kappl",
+        password="",
+    )
+    mail_handler.send_welcome_mail(user=user)
+    # mail_handler.send_reminder_email(user=user2, amount=25, days_not_payed=31)
+    # mail_handler.send_reminder_email(user=user2, amount=25, days_not_payed=61)
+    # mail_handler.send_reminder_email(user=user2, amount=25, days_not_payed=91)
     # mail_handler.send_plain_email("Test Email", "Test email to see if smtp is correctly set up", "it@spaceteam.at")

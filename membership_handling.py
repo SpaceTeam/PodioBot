@@ -6,6 +6,7 @@ from ascii import translate_to_ascii
 from datetime import datetime
 import json, math, time
 
+
 # Sends reminder email to members that haven't paid their membership fee.
 def remind_members():
     podio = PodioAPI("podio.json")
@@ -43,7 +44,7 @@ def remind_members():
             surname = podio.get_value_of_field_with_id(206982184, member)
             statistics["members"] += 1
             statistics["total"] += amount
-            if amount > 100:
+            if amount > 70:
                 statistics["high_payers"].append((given_name + " " + surname, amount))
 
     statistics["high_payers"].sort(key=lambda p: p[1], reverse=True)
@@ -55,7 +56,6 @@ def remind_members():
         statistc_msg += "".join(
             map(lambda hp: f"* {hp[0]}: {hp[1]}€\n", statistics["high_payers"])
         )
-
     mail_sender.send_plain_email(
         "Member reminder statistics", statistc_msg, "hr@spaceteam.at"
     )
