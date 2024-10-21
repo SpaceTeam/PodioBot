@@ -23,19 +23,17 @@ def handle_hook():
     return "OK"
 
 
-def run_scheduler(nope):
-    schedule.run_pending()
-    time.sleep(1)
+def run_scheduler():
+    while True:
+        schedule.run_pending()
+        time.sleep(1)
 
 
 if __name__ == "__main__":
-    # schedule.every(24*30).hours.do(remind_members)
-
     schedule.every(15).minutes.do(manage_new_accounts)
-    scheduler_thread = threading.Thread(target=run_scheduler, args=(1,))
+    scheduler_thread = threading.Thread(target=run_scheduler)
     scheduler_thread.start()
 
     manage_new_accounts()
-    # remind_members()
 
     app.run(host="0.0.0.0")
