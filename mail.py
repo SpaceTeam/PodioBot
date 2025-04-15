@@ -35,7 +35,13 @@ class MailSender:
         )
 
     def send_mail(self, msg: MIMEMultipart, email: str):
-        msg.add_header("reply-to", "hr@spaceteam.at")
+        # Remove existing Reply-To header if present
+        if 'Reply-To' in msg:
+            del msg['Reply-To']
+        
+        # Add the Reply-To header
+        msg['Reply-To'] = "hr@spaceteam.at"
+        
         with smtplib.SMTP(self.config["domain"], self.config["port"]) as server:
             server.starttls()
             server.ehlo()
@@ -96,6 +102,7 @@ class MailSender:
         image.add_header("Content-Disposition", "attachment", filename="qrcode.png")
         msg.attach(image)
         self.send_mail(msg, user.recovery_email)
+        self.send_mail(msg, user.email)
 
     def send_welcome_mail(self, user: User) -> None:
         template = self.env.get_template(self.config["welcome_template"])
