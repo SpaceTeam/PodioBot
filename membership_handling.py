@@ -44,7 +44,7 @@ def remind_members():
             surname = podio.get_value_of_field_with_id(206982184, member)
             statistics["members"] += 1
             statistics["total"] += amount
-            if amount > 70:
+            if amount > 0:
                 statistics["high_payers"].append((given_name + " " + surname, amount))
 
     statistics["high_payers"].sort(key=lambda p: p[1], reverse=True)
@@ -61,6 +61,7 @@ def remind_members():
     )
 
     print(f"Sending {len(members_which_need_to_be_reminded)} reminders.")
+    
     for member in members_which_need_to_be_reminded:
         if member is None:
             continue
@@ -78,12 +79,16 @@ def remind_members():
             password="",
         )
 
-        print(f"Sending mail reminder ({given_name} {surname}) ...")
+        print(f"Sending mail reminder (private and spaceteam) ({given_name} {surname}) ...")
         mail_sender.send_reminder_email(
             user, member["amount"], member["days_not_payed"]
         )
+    
         time.sleep(3)
         print("done.")
+        # add to mail.json:
+        # "60": "reminder_mail_60days.template",
+        # "90": "reminder_mail_90days.template"
 
 
 if __name__ == "__main__":
