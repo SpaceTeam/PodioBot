@@ -35,7 +35,20 @@ class GoogleAPI:
             "changePasswordAtNextLogin": True,
             "recoveryEmail": user.recovery_email,
         }
-        return self.service.users().insert(body=info).execute()
+        
+        try:
+            # Try to create new account
+            return self.service.users().insert(body=info).execute()
+        except Exception as e:
+            if "Entity already exists" in str(e):
+                # Account exists, try to update it
+                update_info = info.copy()
+                del update_info['primaryEmail']  # Can't update primary email
+                try:
+                    return self.service.users().update(userKey=user.email, body=update_info).execute()
+                except Exception as update_e:
+                    raise update_e
+            raise e
 
     def add_account_to_group(
         self, groupkey: str, email: str
@@ -43,20 +56,10 @@ class GoogleAPI:
         payload = {
             "email": email,
         }
-        return self.service.members().insert(groupKey=groupkey, body=payload).execute()
-
-    # results = service.users().list(domain="spaceteam.at", maxResults=10,
-    #                                orderBy='email').execute()
-    # users = results.get('users', [])
-
-    # if not users:
-    #     print('No users in the domain.')
-    # else:
-    #     print('Users:')
-    #     for user in users:
-    #         print(u'{0} ({1})'.format(user['primaryEmail'],
-    #                                   user['name']['fullName']))
-
-    # userinfo = {'primaryEmail': 'test10302@spaceteam.at',
-    #             'name': {'givenName': 'Jane', 'familyName': 'Smith'},
-    #             'password': '34gjklre304iojlo24j2kl3kdlj', }
+        try:
+            return self.service.members().insert(groupKey=groupkey, body=payload).execute()
+        except Exception as e:
+            if "Member already exists" in str(e):
+                # Member is already in the group, this is fine
+                return f"User {email} is already a member of {groupkey}"
+            raise e
